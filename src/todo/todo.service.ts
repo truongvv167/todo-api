@@ -13,7 +13,6 @@ export class TodoService {
   }
 
   async getTodo(id: string) {
-    console.log(id);
     const todo = await this.primaService.todo.findUnique({
       where: {
         id: id,
