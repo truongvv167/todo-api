@@ -1,15 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateTodo } from './dtos/todo.dto';
 import { UpdateTodo } from './dtos/updateTodo.dto';
 
 @Injectable()
 export class TodoService {
+  logger = new Logger(TodoService.name);
   constructor(private primaService: PrismaService) {}
 
   async getAllTodo() {
-    const todos = await this.primaService.todo.findMany();
-    return todos;
+    return await this.primaService.todo.findMany();
   }
 
   async getTodo(id: string) {
@@ -27,65 +32,52 @@ export class TodoService {
   }
 
   async createTodo(todoData: CreateTodo): Promise<string> {
-    const todo = await this.primaService.todo.findUnique({
-      where: {
-        title: todoData.title,
-      },
-    });
+    try {
+      const res = await this.primaService.todo.create({
+        data: {
+          ...todoData,
+        },
+      });
 
-    if (todo) {
-      throw new NotFoundException();
+      return res.id;
+    } catch (error) {
+      this.logger.log(error.message);
+      throw new ConflictException();
     }
-
-    const res = await this.primaService.todo.create({
-      data: {
-        ...todoData,
-      },
-    });
-
-    return res.id;
   }
 
   async updateTodo(id: string, todo: UpdateTodo) {
-    const todoById = await this.primaService.todo.findUnique({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      const updateTodo = await this.primaService.todo.update({
+        where: {
+          id: id,
+        },
+        data: {
+          ...todo,
+        },
+      });
 
-    if (!todoById) {
-      throw new NotFoundException();
+      return updateTodo.id;
+    } catch (error) {
+      if (error.code === 'P2025') {
+        this.logger.log(error.meta.cause);
+      } else {
+        throw new ConflictException();
+      }
     }
-
-    const updateTodo = await this.primaService.todo.update({
-      where: {
-        id: id,
-      },
-      data: {
-        ...todo,
-      },
-    });
-
-    return updateTodo.id;
   }
 
   async deleteTodo(id: string) {
-    const todo = await this.primaService.todo.findUnique({
-      where: {
-        id,
-      },
-    });
+    try {
+      await this.primaService.todo.delete({
+        where: {
+          id,
+        },
+      });
 
-    if (!todo) {
-      throw new NotFoundException();
+      return { message: 'Delete Successfully' };
+    } catch (error) {
+      this.logger.log(error.meta.cause);
     }
-
-    await this.primaService.todo.delete({
-      where: {
-        id,
-      },
-    });
-
-    return { message: 'Delete Successfully' };
   }
 }

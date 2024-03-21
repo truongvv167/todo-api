@@ -19,15 +19,6 @@ export class LoggerMiddleware implements NestMiddleware {
 }
 
 export function logger(req: Request, res: Response, next: NextFunction) {
-  if (req.params.id) {
-    console.log(
-      'Executing request after the function middleware...',
-      req.params.id,
-    );
-  } else {
-    console.log(
-      'Executing request after the function middleware with no params...',
-    );
-  }
+  console.log('Request', { url: req.url, method: req.method });
   next();
 }

@@ -17,7 +17,7 @@ export class TodoModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(LoggerMiddleware)
-      // .exclude({ path: 'todos', method: RequestMethod.GET })
+      .exclude({ path: 'todos', method: RequestMethod.GET })
       .forRoutes(TodoController);
   }
 }
