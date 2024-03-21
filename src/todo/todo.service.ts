@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateTodo } from './dtos/todo.dto';
 import { UpdateTodo } from './dtos/updateTodo.dto';
@@ -20,12 +20,7 @@ export class TodoService {
     });
 
     if (!todo) {
-      throw new HttpException(
-        {
-          message: 'Todo not found',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new NotFoundException();
     }
 
     return todo;
@@ -39,12 +34,7 @@ export class TodoService {
     });
 
     if (todo) {
-      throw new HttpException(
-        {
-          message: 'This title has been taken',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new NotFoundException();
     }
 
     const res = await this.primaService.todo.create({
@@ -64,15 +54,10 @@ export class TodoService {
     });
 
     if (!todoById) {
-      throw new HttpException(
-        {
-          message: 'Todo not found',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new NotFoundException();
     }
 
-    await this.primaService.todo.update({
+    const updateTodo = await this.primaService.todo.update({
       where: {
         id: id,
       },
@@ -81,7 +66,7 @@ export class TodoService {
       },
     });
 
-    return { message: 'Update Successfully' };
+    return updateTodo.id;
   }
 
   async deleteTodo(id: string) {
@@ -92,20 +77,15 @@ export class TodoService {
     });
 
     if (!todo) {
-      throw new HttpException(
-        {
-          message: 'Todo not found',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new NotFoundException();
     }
 
-    const deleteTodo = await this.primaService.todo.delete({
+    await this.primaService.todo.delete({
       where: {
         id,
       },
     });
 
-    return deleteTodo.id;
+    return { message: 'Delete Successfully' };
   }
 }
