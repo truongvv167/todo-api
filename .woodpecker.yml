@@ -1,0 +1,15 @@
+workflows:
+  - name: lint
+    steps:
+      - name: lint-check
+        image: alpine
+        commands:
+          - echo "Linting passed"
+
+  - name: test
+    steps:
+      - name: run-tests
+        image: alpine
+        commands:
+          - echo "Running tests..."
+          - exit 1
