@@ -1,0 +1,6 @@
+steps:
+  - name: run-tests
+    image: alpine
+    commands:
+      - echo "Running tests..."
+      - exit 1

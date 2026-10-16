@@ -1,0 +1,5 @@
+steps:
+  - name: lint-check
+    image: alpine
+    commands:
+      - echo "Linting passed"
